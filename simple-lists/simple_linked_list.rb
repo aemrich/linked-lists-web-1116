@@ -1,7 +1,7 @@
 require 'pry'
 
 class Node
-  attr_accessor :data
+  attr_accessor :data, :next_node
   def initialize(data, next_node)
     @data = data
     @next_node = next_node
@@ -18,55 +18,75 @@ class Node
 end
 
 class LinkedList
-  attr_accessor :hash
-
+  attr_accessor :head
   def initialize(data)
     @data = data
-    @node = Node.new(data, nil)
+    @head = Node.new(data, nil)
     @counter = 0
-    @hash = {@counter => @node}
   end
 
-  def head
-    @node
-  end
 
   def index_at(index)
-    if @hash[index]
-      @hash[index].data
+    node = find_node_at_index(index)
+    if node
+      node.data
     else
       nil
     end
   end
 
   def insert_at_index(index, data)
-    if !@hash[index]
-      @hash[index] = Node.new(data, nil)
+    new_node = Node.new(data, nil)
+
+    index2 = 0
+    until index2 == index
+      if find_node_at_index(index2)
+        index2 += 1
+      else
+        find_node_at_index(index2-1).next_node = Node.new(nil, nil)
+      end
+    end
+
+
+
+    if find_node_at_index(index)
+      replaced_node = find_node_at_index(index)
+      new_node.next_node = replaced_node
+    end
+
+
+    preceding_node = find_node_at_index(index-1)
+    preceding_node.next_node = new_node
+
+  end
+
+  def find_node_at_index(index)
+    node = @head
+
+    while index > 0
+      node = node.next
+      index -= 1
+    end
+
+    if !node
+      nil
     else
-      @hash[index+1] = @hash[index]
-      @hash[index] = Node.new(data, nil)
+      node
     end
   end
 
   def unshift(data)
-    counter = 0
-    until !@hash[counter]
-      counter +=1
-    end
-    until counter <= 0
-      @hash[counter] = @hash[counter-1]
-      counter -=1
-    end
+    @head = Node.new(data, @head)
 
-    @hash[0] = Node.new(data, nil)
   end
 
   def push(data)
-    counter = 0
-    until !@hash[counter]
-      counter +=1
+    node = @head
+    until node.next_node == nil
+      node = node.next
     end
-    @hash[counter] = Node.new(data, nil)
+    node.next_node = Node.new(data, nil)
+
   end
 
 
